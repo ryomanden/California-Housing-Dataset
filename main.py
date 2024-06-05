@@ -1,9 +1,9 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
+import streamlit as st
 import pandas as pd
+from pandas import DataFrame
 
 # Load the data
-header = [
+header: list[str] = [
     'longitude',
     'latitude',
     'housingMedianAge',
@@ -14,13 +14,22 @@ header = [
     'medianIncome',
     'medianHouseValue'
 ]
-data = pd.read_csv('CaliforniaHousing/cal_housing.data', header=None, names=header)
+data: DataFrame = pd.read_csv('CaliforniaHousing/cal_housing.data', header=None, names=header)
 
-# Correlation matrix
-corr = data.corr()
+# Getters
+def get_header():
+    return header
 
-# Plotting the heatmap
-plt.figure()
-sns.heatmap(corr, annot=True)
-plt.savefig('result/corr_heatmap.png')
-plt.show()
+
+def get_data():
+    return data
+
+
+def main():
+    st.title('Data')
+    st.write(data)
+    pass
+
+
+if __name__ == '__main__':
+    main()
