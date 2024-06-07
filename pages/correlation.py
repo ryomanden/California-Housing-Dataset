@@ -9,8 +9,9 @@ from main import get_data, get_header
 def correlation():
     # Correlation matrix
     data = get_data()
-    header = get_header()
-    corr = data.corr()
+    corr = data.iloc[:,2:].corr()
+
+    print(corr)
 
     # Plotting the heatmap
     fig1, ax1 = plt.subplots()
@@ -18,7 +19,7 @@ def correlation():
     fig1.savefig('result/corr_heatmap.png')
 
     # Plotting the pairplot
-    fig2 = sns.pairplot(data, vars=header)
+    fig2 = sns.pairplot(data.iloc[:,2:])
     fig2.savefig('result/corr_pairplot.png')
 
     # Display the heatmap on the streamlit
