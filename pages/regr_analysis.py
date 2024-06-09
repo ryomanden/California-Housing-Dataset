@@ -1,10 +1,9 @@
-from main import get_data, get_header
+from main import get_divided_data
 from sklearn.linear_model import LinearRegression
 import streamlit as st
 import matplotlib.pyplot as plt
 
-data = get_data()
-header = get_header()
+data = get_divided_data()
 model_lr = None
 
 def single_regr_analysis(object_val: str, explanatory_val: str):

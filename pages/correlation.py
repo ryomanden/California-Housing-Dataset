@@ -7,9 +7,15 @@ from main import get_data, get_header
 
 
 def correlation():
-    # Correlation matrix
-    data = get_data()
-    corr = data.iloc[:,2:].corr()
+    # データの選択
+    sel_data = st.radio('データの選択', ('Raw Data', 'Divided Data'))
+    if sel_data == 'Raw Data':
+        data = get_data()
+    else:
+        data = get_divided_data()
+
+    # 相関係数の計算
+    corr = data.iloc[:, 2:].corr()
 
     print(corr)
 

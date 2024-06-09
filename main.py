@@ -15,8 +15,23 @@ header: list[str] = [
     'medianHouseValue'
 ]
 data: DataFrame = pd.read_csv('CaliforniaHousing/cal_housing.data', header=None, names=header)
+divided_data = data.copy()
+divided_data['totalRooms'] = data['totalRooms'] / data['households']
+divided_data['totalBedrooms'] = data['totalBedrooms'] / data['households']
+divided_data['population'] = data['population'] / data['households']
+divided_data.drop(columns=['households'], inplace=True)
 
-# Getters
+
+def main():
+    st.title('Raw Data')
+    st.write(data)
+    st.title('Divided Data')
+    st.write(divided_data)
+    st.title('Data Description')
+    st.write(divided_data.describe())
+
+
+# --- GETTER --- #
 def get_header():
     return header
 
@@ -25,10 +40,8 @@ def get_data():
     return data
 
 
-def main():
-    st.title('Data')
-    st.write(data)
-    pass
+def get_divided_data():
+    return divided_data
 
 
 if __name__ == '__main__':
