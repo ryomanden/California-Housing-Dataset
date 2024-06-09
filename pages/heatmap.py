@@ -2,14 +2,17 @@ import streamlit as st
 from main import get_data, get_header
 import pydeck as pdk
 
+# --- GET DATA --- #
 data = get_data()
 header = get_header()
 
 
 def plotHeatmap():
+
+    # ヒートマップの描画
     st.title('Heatmap')
-    select_heatmap = st.selectbox('Choose the heatmap variable', header[2:])
-    pitch = st.slider('Select the weight of the heatmap', 0, 100, 0)
+    select_heatmap = st.selectbox('ヒートマップに使用する変数を選択', header[2:])
+    pitch = st.slider('地図の傾き', 0, 100, 0)
     st.pydeck_chart(pdk.Deck(
         map_style='mapbox://styles/mapbox/light-v10',
         initial_view_state=pdk.ViewState(

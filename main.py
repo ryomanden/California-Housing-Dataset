@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from pandas import DataFrame
 
-# Load the data
+# --- LOAD --- #
 header: list[str] = [
     'longitude',
     'latitude',
