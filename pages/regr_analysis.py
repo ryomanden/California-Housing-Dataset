@@ -50,7 +50,7 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     x = cleaned_data[[object_val]]
     y = cleaned_data[[explanatory_val]]
 
-    #　データの分割
+    # データの分割
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
 
     # 単回帰分析の実行
@@ -136,7 +136,7 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False, if_enable=[True,
     x = cleaned_data[cleaned_data.columns[2:7][if_enable]]
     y = cleaned_data[['medianHouseValue']]
 
-    #　データの分割
+    # データの分割
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
 
     # 重回帰分析の実行
