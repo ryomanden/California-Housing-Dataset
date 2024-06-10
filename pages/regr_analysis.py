@@ -53,12 +53,14 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     col1, col2 = st.columns(2)
     col1.metric('平均二乗誤差', mse)
     col2.metric('決定係数', r2)
+    st.divider()
 
     # 任意値の予測
-    x_pre = col1.number_input('独立変数の値', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    col3, col4 = st.columns(2)
+    x_pre = col4.number_input('独立変数の値', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[x_pre]])
 
-    col2.metric(f'{explanatory_val} の予測値',y_pre[0][0])
+    col3.metric(f'{explanatory_val} の予測値',y_pre[0][0])
 
 
 # --- 重回帰分析 --- #
@@ -94,16 +96,18 @@ def multi_regr_analysis(z_score_threshold=3.0, sel_delete='delete'):
     col1, col2 = st.columns(2)
     col1.metric('平均二乗誤差', mse)
     col2.metric('決定係数', r2)
+    st.divider()
 
     # 任意値の予測
-    housingMedianAge = st.number_input('housingMedianAge', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    totalRooms = st.number_input('totalRooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    totalBedrooms = st.number_input('totalBedrooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    population = st.number_input('population', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    medianIncome = st.number_input('medianIncome', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    col3, col4 = st.columns(2)
+    housingMedianAge = col4.number_input('housingMedianAge', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    totalRooms = col4.number_input('totalRooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    totalBedrooms = col4.number_input('totalBedrooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    population = col4.number_input('population', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
+    medianIncome = col4.number_input('medianIncome', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[housingMedianAge, totalRooms, totalBedrooms, population, medianIncome]])
 
-    st.write(f'medianHouseValue の予測値は {y_pre[0][0]}')
+    col3.metric('medianHouseValue の予測値', y_pre[0][0])
 
 
 def regr_analysis():
