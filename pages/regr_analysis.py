@@ -231,7 +231,39 @@ def regr_analysis():
         # 実行ボタン
         submit_button = st.form_submit_button(label='Submit')
         if submit_button:
-            multi_regr_analysis(z_score_threshold, if_delete)
+            multi_regr_analysis(z_score_threshold, if_delete, if_enable)
+
+    st.markdown('''
+    ### 作りたいモデル
+    各説明変数を入力することで、家賃の予測を行いたい。
+    ### やったこと
+    - 1世帯の家賃が知りたいので、totalRooms, totalBedrooms, populationを世帯数で割ったデータを使用した。
+    - テストデータと訓練データに分割。７：３で分割した。
+    - 菊池くんの指摘の通り、1世帯ではありえない値があったので、外れ値として削除した。
+        - z scoreをもとに外れ値を切った。
+    ''')
+    st.latex(r'''z = \frac{データポイント - データセットの平均}{データセットの標準偏差}''')
+    st.latex(r'''z = \frac{x - \mu}{\sigma}''')
+    st.markdown('''
+    ### 検証結果
+    - 説明変数は多ければ多いほど良い（今回は）
+    - z scoreをもとに外れ値を切ると、少し精度が上がる
+    ''')
+    with st.container(border=True):
+        st.subheader('1世帯あたりのデータ')
+        col1, col2 = st.columns(2)
+        col1.image('result/divided_corr_heatmap.png', caption='相関係数のヒートマップ')
+        col2.image('result/divided_corr_pairplot.png', caption='相関係数のペアプロット')
+    with st.container(border=True):
+        st.subheader('z scoreで外れ値を削除したデータ')
+        col1, col2 = st.columns(2)
+        col1.image('result/divided_zscore_corr_heatmap.png', caption='相関係数のヒートマップ')
+        col2.image('result/divided_zscore_corr_pairplot.png', caption='相関係数のペアプロット')
+    st.markdown('''
+    ### 解決できなかった課題
+    - 大きい値がクリッピングしているが、原因が分からなかった。
+    - z scoreの閾値を小さくすると消えたが、決定係数下がった。
+    ''')
 
 
 if __name__ == '__main__':
