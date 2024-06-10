@@ -7,17 +7,17 @@ from main import get_data, get_divided_data
 
 
 def correlation():
+    col1, col2 = st.columns(2)
     # データの選択
-    sel_data = st.radio('データの選択', ('Raw Data', 'Divided Data'))
+    sel_data = col1.radio('データの選択', ('Raw Data', 'Divided Data'))
     if sel_data == 'Raw Data':
         data = get_data()
     else:
         data = get_divided_data()
 
     # 外れ値の処理
-    col1, col2 = st.columns(2)
-    if_delete = col1.toggle('外れ値の処理')
     z_score_threshold = col2.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+    if_delete = col2.toggle('外れ値の処理')
 
     z_score = np.abs(status.zscore(data))
     if if_delete:
