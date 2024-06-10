@@ -1,4 +1,5 @@
-import pandas as pd
+import numpy as np
+from scipy import stats as status
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -13,8 +14,20 @@ def correlation():
     else:
         data = get_divided_data()
 
+    # 外れ値の処理
+    col1, col2 = st.columns(2)
+    if_delete = col1.toggle('外れ値の処理')
+    z_score_threshold = col2.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+
+    z_score = np.abs(status.zscore(data))
+    if if_delete:
+        cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
+    else:
+        cleaned_data = data
+
+
     # 相関係数の計算
-    corr = data.iloc[:, 2:].corr()
+    corr = cleaned_data.iloc[:, 2:].corr()
 
     # ヒートマップの描画
     fig1, ax1 = plt.subplots()
