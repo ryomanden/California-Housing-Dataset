@@ -116,7 +116,7 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
 
 # --- 重回帰分析 --- #
 
-def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
+def multi_regr_analysis(z_score_threshold=3.0, if_delete=False, if_enable=[True, True, True, True, True]):
     # --- 外れ値の処理 --- #
 
     # Z-scoreの計算
@@ -133,7 +133,7 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
         st.write(cleaned_data)
 
     # データの取得
-    x = cleaned_data[['housingMedianAge', 'totalRooms', 'totalBedrooms', 'population', 'medianIncome']]
+    x = cleaned_data[cleaned_data.columns[2:7][if_enable]]
     y = cleaned_data[['medianHouseValue']]
 
     #　データの分割
@@ -187,13 +187,19 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     with st.expander('テストデータ'):
         st.write(x_test.join(y_test))
 
+    pred = []
     col3, col4 = st.columns(2)
-    housingMedianAge = col4.number_input('housingMedianAge', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    totalRooms = col4.number_input('totalRooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    totalBedrooms = col4.number_input('totalBedrooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    population = col4.number_input('population', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    medianIncome = col4.number_input('medianIncome', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
-    y_pre = model_lr.predict([[housingMedianAge, totalRooms, totalBedrooms, population, medianIncome]])
+    if if_enable[0]:
+        pred.append(col4.number_input('築年数', min_value=0, max_value=100, value=0, step=1))
+    if if_enable[1]:
+        pred.append(col4.number_input('部屋数', min_value=0, max_value=100, value=0, step=1))
+    if if_enable[2]:
+        pred.append(col4.number_input('ベッドルーム数', min_value=0, max_value=100, value=0, step=1))
+    if if_enable[3]:
+        pred.append(col4.number_input('世帯人数', min_value=0, max_value=100, value=0, step=1))
+    if if_enable[4]:
+        pred.append(col4.number_input('収入（万ドル？）', min_value=0, max_value=100, value=0, step=1))
+    y_pre = model_lr.predict([pred])
 
     # 予測値の表示
     col3.metric('medianHouseValue の予測値', y_pre[0][0])
@@ -226,7 +232,15 @@ def regr_analysis():
 
         # 外れ値の処理
         z_score_threshold = st.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
-        if_delete = st.toggle('外れ値の処理')
+        col1, col2 = st.columns(2)
+        if_delete = col1.toggle('外れ値の処理')
+        if_enable = list(range(5))
+        with col2.popover('利用する説明変数'):
+            if_enable[0] = st.checkbox('housingMedianAge', value=True)
+            if_enable[1] = st.checkbox('totalRooms', value=True)
+            if_enable[2] = st.checkbox('totalBedrooms', value=True)
+            if_enable[3] = st.checkbox('population', value=True)
+            if_enable[4] = st.checkbox('medianIncome', value=True)
 
         # 実行ボタン
         submit_button = st.form_submit_button(label='Submit')
