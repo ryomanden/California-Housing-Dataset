@@ -111,7 +111,7 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     y_pre = model_lr.predict([[x_pre]])
 
     # 予測値の表示
-    col3.metric(f'{explanatory_val} の予測値', y_pre[0][0])
+    col3.metric(f'{explanatory_val} の予測値', f'{y_pre[0][0]}$')
 
 
 # --- 重回帰分析 --- #
@@ -202,7 +202,7 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False, if_enable=[True,
     y_pre = model_lr.predict([pred])
 
     # 予測値の表示
-    col3.metric('medianHouseValue の予測値', y_pre[0][0])
+    col3.metric('medianHouseValue の予測値', f'{y_pre[0][0]}$')
 
 
 # --- MAIN --- #
