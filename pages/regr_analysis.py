@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from main import get_divided_data
 from sklearn.linear_model import LinearRegression
@@ -33,8 +34,8 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
 
     # --- 外れ値の処理 --- #
 
-    # Z-scoreの計算(z = (x - mean) / std)
-    z_score = np.abs(status.zscore(data))
+    # Z-scoreの計算
+    z_score = np.abs(status.zscore(data)) # <-- z = (x - mean) / std
 
     # 外れ値の削除可否
     if if_delete:
@@ -92,7 +93,7 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
 
     # 結果の表示
     col1, col2 = st.columns(2)
-    col1.metric('平均二乗誤差', mse, mse_diff)
+    col1.metric('平均二乗誤差', mse, mse_diff, delta_color="inverse")
     col2.metric('決定係数', r2, r2_diff)
     st.divider()
 
@@ -111,8 +112,8 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
 
     # --- 外れ値の処理 --- #
 
-    # Z-scoreの計算(z = (x - mean) / std)
-    z_score = np.abs(status.zscore(data))
+    # Z-scoreの計算
+    z_score = np.abs(status.zscore(data)) # <-- z = (x - mean) / std
 
     # 外れ値の削除可否
     if if_delete:
@@ -166,7 +167,7 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
 
     # 結果の表示
     col1, col2 = st.columns(2)
-    col1.metric('平均二乗誤差', mse, mse_diff)
+    col1.metric('平均二乗誤差', mse, mse_diff, delta_color="inverse")
     col2.metric('決定係数', r2, r2_diff)
     st.write(coef)
     st.divider()
