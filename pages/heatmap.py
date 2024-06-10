@@ -7,7 +7,7 @@ data = get_data()
 header = get_header()
 
 
-def plotHeatmap():
+def plot_heatmap():
 
     # ヒートマップの描画
     st.title('Heatmap')
@@ -38,4 +38,4 @@ def plotHeatmap():
 
 
 if __name__ == '__main__':
-    plotHeatmap()
+    plot_heatmap()
