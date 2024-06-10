@@ -8,9 +8,12 @@ from scipy import stats as status
 import streamlit as st
 import matplotlib.pyplot as plt
 
-data = get_divided_data()
-model_lr = None
+# --- INIT --- #
 
+# データの取得
+data = get_divided_data()
+
+# セッションの初期化
 if 'single_mse_prev' not in st.session_state:
     st.session_state.single_mse_prev = None
 
@@ -23,21 +26,30 @@ if 'multi_mse_prev' not in st.session_state:
 if 'multi_r2_prev' not in st.session_state:
     st.session_state.multi_r2_prev = None
 
+
 # --- 単回帰分析 --- #
+
 def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshold=3.0, if_delete=False):
-    # 単回帰分析
+
+    # --- 外れ値の処理 --- #
+
+    # Z-scoreの計算(z = (x - mean) / std)
     z_score = np.abs(status.zscore(data))
+
+    # 外れ値の削除可否
     if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
 
+    # データの取得
     x = cleaned_data[[object_val]]
     y = cleaned_data[[explanatory_val]]
 
+    #　データの分割
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
 
-    # モデルの学習
+    # 単回帰分析の実行
     model_lr = LinearRegression()
     model_lr.fit(x_train, y_train)
 
@@ -49,10 +61,10 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     # 平均二乗誤差 (MSE) の計算
     mse = mean_squared_error(y_test, y_pred)
 
-
     # 決定係数 (R^2) の計算
     r2 = r2_score(y_test, y_pred)
 
+    # グラフにプロット
     plt.plot(x_train, y_train, '.')
     plt.plot(x_test, y_pred)
     plt.xlabel(object_val)
@@ -69,41 +81,53 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     else:
         r2_diff = r2 - float(st.session_state.single_r2_prev)
 
+    # セッションの更新
     st.session_state.single_mse_prev = mse
     st.session_state.single_r2_prev = r2
 
-    # 結果の表示
+    # --- 結果の表示 --- #
+
+    # グラフの表示
     st.pyplot(plt)
 
+    # 結果の表示
     col1, col2 = st.columns(2)
     col1.metric('平均二乗誤差', mse, mse_diff)
     col2.metric('決定係数', r2, r2_diff)
     st.divider()
-
 
     # 任意値の予測
     col3, col4 = st.columns(2)
     x_pre = col4.number_input('独立変数の値', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[x_pre]])
 
+    # 予測値の表示
     col3.metric(f'{explanatory_val} の予測値', y_pre[0][0])
 
 
 # --- 重回帰分析 --- #
+
 def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
 
+    # --- 外れ値の処理 --- #
+
+    # Z-scoreの計算(z = (x - mean) / std)
     z_score = np.abs(status.zscore(data))
+
+    # 外れ値の削除可否
     if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
 
-    # 重回帰分析
+    # データの取得
     x = cleaned_data[['housingMedianAge', 'totalRooms', 'totalBedrooms', 'population', 'medianIncome']]
     y = cleaned_data[['medianHouseValue']]
+
+    #　データの分割
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
 
-    # モデルの学習
+    # 重回帰分析の実行
     model_lr = LinearRegression()
     model_lr.fit(x_train, y_train)
 
@@ -129,8 +153,11 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     else:
         r2_diff = r2 - float(st.session_state.multi_r2_prev)
 
+    # セッションの更新
     st.session_state.multi_mse_prev = mse
     st.session_state.multi_r2_prev = r2
+
+    # --- 結果の表示 --- #
 
     # 結果の表示
     col1, col2 = st.columns(2)
@@ -147,34 +174,42 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     medianIncome = col4.number_input('medianIncome', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[housingMedianAge, totalRooms, totalBedrooms, population, medianIncome]])
 
+    # 予測値の表示
     col3.metric('medianHouseValue の予測値', y_pre[0][0])
 
+# --- MAIN --- #
 
 def regr_analysis():
+
+    # --- 単回帰分析form --- #
     with st.form('single_regr_analysis'):
         st.title('単回帰分析')
 
+        # データの選択
         col1, col2 = st.columns(2)
         object_val = col1.selectbox('説明変数の選択', data.columns[2:])
         explanatory_val = col2.selectbox('目的変数の選択', data.columns[2:])
 
+        # 外れ値の処理
         z_score_threshold = st.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
-        if_delete = st.toggle('外れ値の処理',)
+        if_delete = st.toggle('外れ値の処理', )
 
+        # 実行ボタン
         submit_button = st.form_submit_button(label='Submit')
-
         if submit_button:
             single_regr_analysis(object_val, explanatory_val, z_score_threshold, if_delete)
 
+    # --- 重回帰分析form --- #
     with st.form('multi_regr_analysis'):
         st.title('重回帰分析')
 
+        # 外れ値の処理
         col1, col2 = st.columns(2)
         z_score_threshold = col1.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
         if_delete = col1.toggle('外れ値の処理')
 
+        # 実行ボタン
         submit_button = st.form_submit_button(label='Submit')
-
         if submit_button:
             multi_regr_analysis(z_score_threshold, if_delete)
 
