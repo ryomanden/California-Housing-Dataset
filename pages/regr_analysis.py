@@ -157,12 +157,18 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     st.session_state.multi_mse_prev = mse
     st.session_state.multi_r2_prev = r2
 
+    # coefficientの計算
+    coef = pd.DataFrame(model_lr.coef_, columns=x.columns)
+
+
+
     # --- 結果の表示 --- #
 
     # 結果の表示
     col1, col2 = st.columns(2)
     col1.metric('平均二乗誤差', mse, mse_diff)
     col2.metric('決定係数', r2, r2_diff)
+    st.write(coef)
     st.divider()
 
     # 任意値の予測
