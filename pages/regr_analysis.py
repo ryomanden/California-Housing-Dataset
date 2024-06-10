@@ -11,13 +11,23 @@ import matplotlib.pyplot as plt
 data = get_divided_data()
 model_lr = None
 
+if 'single_mse_prev' not in st.session_state:
+    st.session_state.single_mse_prev = None
+
+if 'single_r2_prev' not in st.session_state:
+    st.session_state.single_r2_prev = None
+
+if 'multi_mse_prev' not in st.session_state:
+    st.session_state.multi_mse_prev = None
+
+if 'multi_r2_prev' not in st.session_state:
+    st.session_state.multi_r2_prev = None
 
 # --- 単回帰分析 --- #
-def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshold=3.0, sel_delete ='delete'):
+def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshold=3.0, if_delete=False):
     # 単回帰分析
-
     z_score = np.abs(status.zscore(data))
-    if sel_delete == 'delete':
+    if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
@@ -39,6 +49,7 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     # 平均二乗誤差 (MSE) の計算
     mse = mean_squared_error(y_test, y_pred)
 
+
     # 決定係数 (R^2) の計算
     r2 = r2_score(y_test, y_pred)
 
@@ -47,27 +58,42 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     plt.xlabel(object_val)
     plt.ylabel(explanatory_val)
 
+    # 前回との差分
+    if st.session_state.single_mse_prev is None:
+        mse_diff = 0
+    else:
+        mse_diff = mse - float(st.session_state.single_mse_prev)
+
+    if st.session_state.single_r2_prev is None:
+        r2_diff = 0
+    else:
+        r2_diff = r2 - float(st.session_state.single_r2_prev)
+
+    st.session_state.single_mse_prev = mse
+    st.session_state.single_r2_prev = r2
+
     # 結果の表示
     st.pyplot(plt)
 
     col1, col2 = st.columns(2)
-    col1.metric('平均二乗誤差', mse)
-    col2.metric('決定係数', r2)
+    col1.metric('平均二乗誤差', mse, mse_diff)
+    col2.metric('決定係数', r2, r2_diff)
     st.divider()
+
 
     # 任意値の予測
     col3, col4 = st.columns(2)
     x_pre = col4.number_input('独立変数の値', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[x_pre]])
 
-    col3.metric(f'{explanatory_val} の予測値',y_pre[0][0])
+    col3.metric(f'{explanatory_val} の予測値', y_pre[0][0])
 
 
 # --- 重回帰分析 --- #
-def multi_regr_analysis(z_score_threshold=3.0, sel_delete='delete'):
+def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
 
     z_score = np.abs(status.zscore(data))
-    if sel_delete == 'delete':
+    if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
@@ -92,10 +118,24 @@ def multi_regr_analysis(z_score_threshold=3.0, sel_delete='delete'):
     # 決定係数 (R^2) の計算
     r2 = r2_score(y_test, y_pred)
 
-    # 結果の表示\
+    # 前回との差分
+    if st.session_state.multi_mse_prev is None:
+        mse_diff = 0
+    else:
+        mse_diff = mse - float(st.session_state.multi_mse_prev)
+
+    if st.session_state.multi_r2_prev is None:
+        r2_diff = 0
+    else:
+        r2_diff = r2 - float(st.session_state.multi_r2_prev)
+
+    st.session_state.multi_mse_prev = mse
+    st.session_state.multi_r2_prev = r2
+
+    # 結果の表示
     col1, col2 = st.columns(2)
-    col1.metric('平均二乗誤差', mse)
-    col2.metric('決定係数', r2)
+    col1.metric('平均二乗誤差', mse, mse_diff)
+    col2.metric('決定係数', r2, r2_diff)
     st.divider()
 
     # 任意値の予測
@@ -118,25 +158,25 @@ def regr_analysis():
         object_val = col1.selectbox('説明変数の選択', data.columns[2:])
         explanatory_val = col2.selectbox('目的変数の選択', data.columns[2:])
 
-        sel_delete = col1.radio('外れ値の処理', ('delete', 'keep'))
-        z_score_threshold = col2.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+        z_score_threshold = st.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+        if_delete = st.toggle('外れ値の処理',)
 
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            single_regr_analysis(object_val, explanatory_val, z_score_threshold, sel_delete)
+            single_regr_analysis(object_val, explanatory_val, z_score_threshold, if_delete)
 
     with st.form('multi_regr_analysis'):
         st.title('重回帰分析')
 
         col1, col2 = st.columns(2)
-        sel_delete = col1.radio('外れ値の処理', ('delete', 'keep'))
-        z_score_threshold = col2.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+        z_score_threshold = col1.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+        if_delete = col1.toggle('外れ値の処理')
 
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            multi_regr_analysis(z_score_threshold, sel_delete)
+            multi_regr_analysis(z_score_threshold, if_delete)
 
 
 if __name__ == '__main__':
