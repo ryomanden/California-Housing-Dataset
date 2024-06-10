@@ -6,13 +6,19 @@ import matplotlib.pyplot as plt
 from main import get_data, get_divided_data
 
 
+# --- MAIN --- #
 def correlation():
     with st.form('correlation'):
         col1, col2 = st.columns(2)
+
         # データの選択
         sel_data = col1.radio('データの選択', ('Raw Data', 'Divided Data'))
+
+        # Z-scoreの閾値
         z_score_threshold = col2.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
         if_delete = col2.toggle('外れ値の処理')
+
+        # 実行ボタン
         submit = st.form_submit_button('Submit')
         if submit:
             if sel_data == 'Raw Data':
