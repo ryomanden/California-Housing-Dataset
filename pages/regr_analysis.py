@@ -31,17 +31,20 @@ if 'multi_r2_prev' not in st.session_state:
 # --- 単回帰分析 --- #
 
 def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshold=3.0, if_delete=False):
-
     # --- 外れ値の処理 --- #
 
     # Z-scoreの計算
-    z_score = np.abs(status.zscore(data)) # <-- z = (x - mean) / std
+    z_score = np.abs(status.zscore(data))  # <-- z = (x - mean) / std
 
     # 外れ値の削除可否
     if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
+
+    # データの確認
+    with st.expander('データの確認'):
+        st.write(cleaned_data)
 
     # データの取得
     x = cleaned_data[[object_val]]
@@ -97,7 +100,12 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     col2.metric('決定係数', r2, r2_diff)
     st.divider()
 
-    # 任意値の予測
+    # --- 任意値の予測 --- #
+
+    # テストデータの表示
+    with st.expander('テストデータ'):
+        st.write(x_test.join(y_test))
+
     col3, col4 = st.columns(2)
     x_pre = col4.number_input('独立変数の値', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     y_pre = model_lr.predict([[x_pre]])
@@ -109,17 +117,20 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
 # --- 重回帰分析 --- #
 
 def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
-
     # --- 外れ値の処理 --- #
 
     # Z-scoreの計算
-    z_score = np.abs(status.zscore(data)) # <-- z = (x - mean) / std
+    z_score = np.abs(status.zscore(data))  # <-- z = (x - mean) / std
 
     # 外れ値の削除可否
     if if_delete:
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
+
+    # データの確認
+    with st.expander('データの確認'):
+        st.write(cleaned_data)
 
     # データの取得
     x = cleaned_data[['housingMedianAge', 'totalRooms', 'totalBedrooms', 'population', 'medianIncome']]
@@ -161,8 +172,6 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     # coefficientの計算
     coef = pd.DataFrame(model_lr.coef_, columns=x.columns)
 
-
-
     # --- 結果の表示 --- #
 
     # 結果の表示
@@ -172,7 +181,12 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     st.write(coef)
     st.divider()
 
-    # 任意値の予測
+    # --- 任意値の予測 --- #
+
+    # テストデータの表示
+    with st.expander('テストデータ'):
+        st.write(x_test.join(y_test))
+
     col3, col4 = st.columns(2)
     housingMedianAge = col4.number_input('housingMedianAge', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
     totalRooms = col4.number_input('totalRooms', min_value=0.0, max_value=100.0, value=0.0, step=0.1)
@@ -184,10 +198,10 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False):
     # 予測値の表示
     col3.metric('medianHouseValue の予測値', y_pre[0][0])
 
+
 # --- MAIN --- #
 
 def regr_analysis():
-
     # --- 単回帰分析form --- #
     with st.form('single_regr_analysis'):
         st.title('単回帰分析')
@@ -211,9 +225,8 @@ def regr_analysis():
         st.title('重回帰分析')
 
         # 外れ値の処理
-        col1, col2 = st.columns(2)
-        z_score_threshold = col1.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
-        if_delete = col1.toggle('外れ値の処理')
+        z_score_threshold = st.number_input('Z-scoreの閾値', min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+        if_delete = st.toggle('外れ値の処理')
 
         # 実行ボタン
         submit_button = st.form_submit_button(label='Submit')
