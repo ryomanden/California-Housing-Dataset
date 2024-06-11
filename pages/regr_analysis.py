@@ -42,6 +42,8 @@ def single_regr_analysis(object_val: str, explanatory_val: str, z_score_threshol
     else:
         cleaned_data = data
 
+    st.write(f'Erased: {data.count()[0] - cleaned_data.count()[0]} pts')
+
     # データの確認
     with st.expander('データの確認'):
         st.write(cleaned_data)
@@ -127,6 +129,8 @@ def multi_regr_analysis(z_score_threshold=3.0, if_delete=False, if_enable=[True,
         cleaned_data = data[(z_score < z_score_threshold).all(axis=1)]
     else:
         cleaned_data = data
+
+    st.write(f'Erased: {data.count()[0] - cleaned_data.count()[0]} pts')
 
     # データの確認
     with st.expander('データの確認'):
@@ -277,6 +281,7 @@ def regr_analysis():
     ### 解決できなかった課題
     - 大きい値がクリッピングしているが、原因が分からなかった。
     - z scoreの閾値を小さくすると消えたが、決定係数下がった。
+    - scirkitlearnを使わずに実装して比較したかった。
     ''')
 
 
